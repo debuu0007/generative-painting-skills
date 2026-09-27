@@ -31,7 +31,7 @@ It also ships:
 ## Install
 
 ```bash
-git clone https://github.com/<you>/generative-painting-skills.git
+git clone https://github.com/debuu0007/generative-painting-skills.git
 cd generative-painting-skills
 ./install.sh              # symlinks the skill into every agent found: ~/.claude, ~/.codex, ~/.cursor, ~/.agents
 ./install.sh claude       # …or just one agent (claude | codex | cursor | agents)
