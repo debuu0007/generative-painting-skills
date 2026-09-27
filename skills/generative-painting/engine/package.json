@@ -1,0 +1,20 @@
+{
+  "name": "generative-painting-film",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A generative painting film: code-painted plates in a chosen style (watercolour, pointillism, or mixed per plate), hard-cut editing, persistent-identity particles, a soft code-generated score.",
+  "scripts": {
+    "dev": "vite",
+    "export": "node scripts/export.mjs",
+    "plates": "node scripts/export.mjs --plates-only"
+  },
+  "dependencies": {
+    "p5": "2.3.3",
+    "p5.brush": "2.2.3"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0",
+    "vite": "^6.0.0"
+  }
+}

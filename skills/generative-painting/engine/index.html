@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>collision film</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0d0c0b; color: #e8dcc8; font: 12px ui-monospace, monospace; }
+      body { display: grid; place-items: center; }
+      canvas { width: min(92vmin, 600px); height: auto; aspect-ratio: 1; display: block; }
+      #hud { position: fixed; left: 12px; bottom: 10px; opacity: 0.75; }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="600" height="600"></canvas>
+    <div id="hud">preparing…</div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
