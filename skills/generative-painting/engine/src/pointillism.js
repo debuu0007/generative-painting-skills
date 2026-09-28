@@ -47,7 +47,7 @@ export function parseColor(c) {
   if (m) return m[1].split(',').slice(0, 3).map((v) => parseFloat(v));
   return [128, 128, 128];
 }
-function rgbToHsl([r, g, b]) {
+export function rgbToHsl([r, g, b]) {
   r /= 255; g /= 255; b /= 255;
   const mx = Math.max(r, g, b); const mn = Math.min(r, g, b); const l = (mx + mn) / 2;
   if (mx === mn) return [0, 0, l];
@@ -55,7 +55,7 @@ function rgbToHsl([r, g, b]) {
   const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return [h * 60, s, l];
 }
-function hslToCss(h, s, l) {
+export function hslToCss(h, s, l) {
   h = ((h % 360) + 360) % 360; s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l));
   const c = (1 - Math.abs(2 * l - 1)) * s; const x = c * (1 - Math.abs(((h / 60) % 2) - 1)); const m = l - c / 2;
   const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
@@ -85,7 +85,7 @@ function family(base, prof, R, o = {}) {
 }
 
 // ---------- geometry ----------
-function catmull(pts, curv, closed, step = 2.5) {
+export function catmull(pts, curv, closed, step = 2.5) {
   if (curv <= 0 || pts.length < 3) return densify(pts, closed, step);
   const out = []; const n = pts.length;
   const P = (i) => (closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n - 1, i))]);
@@ -104,7 +104,7 @@ function catmull(pts, curv, closed, step = 2.5) {
   if (!closed) out.push(pts[n - 1]);
   return out;
 }
-function densify(pts, closed, step) {
+export function densify(pts, closed, step) {
   const out = []; const n = pts.length; const segs = closed ? n : n - 1;
   for (let i = 0; i < segs; i++) {
     const a = pts[i]; const b = pts[(i + 1) % n];
@@ -114,7 +114,7 @@ function densify(pts, closed, step) {
   if (!closed) out.push(pts[n - 1]);
   return out;
 }
-function circlePoly(c, r, irr, R) {
+export function circlePoly(c, r, irr, R) {
   const n = Math.max(14, Math.min(90, Math.round(r * 1.2)));
   const off = R.float(0, Math.PI * 2);
   const wob = irr ? Math.min(0.12, 0.04 + irr * 0.08) : 0.012;
@@ -124,9 +124,9 @@ function circlePoly(c, r, irr, R) {
     return [c[0] + Math.cos(a) * rr, c[1] + Math.sin(a) * rr];
   });
 }
-function area(poly) { let s = 0; for (let i = 0; i < poly.length; i++) { const a = poly[i]; const b = poly[(i + 1) % poly.length]; s += a[0] * b[1] - b[0] * a[1]; } return Math.abs(s / 2); }
-function bbox(poly) { let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity; for (const [x, y] of poly) { if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; } return [x0, y0, x1, y1]; }
-function inside(px, py, poly) {
+export function area(poly) { let s = 0; for (let i = 0; i < poly.length; i++) { const a = poly[i]; const b = poly[(i + 1) % poly.length]; s += a[0] * b[1] - b[0] * a[1]; } return Math.abs(s / 2); }
+export function bbox(poly) { let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity; for (const [x, y] of poly) { if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; } return [x0, y0, x1, y1]; }
+export function inside(px, py, poly) {
   let c = false;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
     const [xi, yi] = poly[i]; const [xj, yj] = poly[j];
@@ -134,7 +134,7 @@ function inside(px, py, poly) {
   }
   return c;
 }
-function edgeDist(px, py, poly) {
+export function edgeDist(px, py, poly) {
   let d = Infinity;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
     const [ax, ay] = poly[j]; const [bx, by] = poly[i];
@@ -147,7 +147,7 @@ function edgeDist(px, py, poly) {
 }
 /** Raster mask of a polygon (native canvas fill): O(1) inside tests and ring-probed edge distance.
  * Used for large shapes, where exact per-point polygon tests cost O(vertices) each. */
-function rasterMask(poly, pad) {
+export function rasterMask(poly, pad) {
   const [x0, y0, x1, y1] = bbox(poly);
   const ox = Math.floor(x0 - pad - 2); const oy = Math.floor(y0 - pad - 2);
   const w = Math.ceil(x1 - x0 + 2 * pad + 5); const h = Math.ceil(y1 - y0 + 2 * pad + 5);
@@ -165,7 +165,7 @@ function rasterMask(poly, pad) {
 }
 
 /** Main-axis angle of a polygon (PCA), for directional dabs. */
-function axis(poly) {
+export function axis(poly) {
   let cx = 0; let cy = 0; for (const [x, y] of poly) { cx += x; cy += y; } cx /= poly.length; cy /= poly.length;
   let sxx = 0; let syy = 0; let sxy = 0;
   for (const [x, y] of poly) { const dx = x - cx; const dy = y - cy; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; }

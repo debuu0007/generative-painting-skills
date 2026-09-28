@@ -1,6 +1,6 @@
 # Adding a painting style
 
-Watercolour and pointillism are two instances of one pattern. A new style (woodcut, risograph, mosaic, ink wash, cross-stitch, pixel art…) reuses nearly everything and replaces only one layer.
+The six styles (watercolour, pointillism, charcoal, sketch, woodcut, cel) are instances of one pattern. A new style (risograph, mosaic, ink wash, cross-stitch, pixel art…) reuses nearly everything and replaces only one layer.
 
 ## 1. The three layers of every film
 
@@ -19,7 +19,7 @@ Because scenes are shared, **every existing scene in the library is instantly av
 
 | Kind | How it works | Use when | Example |
 |---|---|---|---|
-| **Replay** (`record: true`) | the scene paints through a recording proxy; your `transform` replays the recorded geometry (shapes, lines, fills, hatches) with new marks | the style is a different *mark* over the same drawing | pointillism; woodcut, mosaic, risograph, cross-stitch |
+| **Replay** (`record: true`) | the scene paints through a recording proxy; your `transform` replays the recorded geometry (shapes, lines, fills, hatches) with new marks | the style is a different *mark* over the same drawing | pointillism, charcoal, sketch, woodcut, cel; mosaic, risograph, cross-stitch |
 | **Direct** (`record: false`) | the scene library for this style calls its own primitives (a new kit or library) and that painting is the plate | the style needs a different *drawing*, not just different marks | watercolour (p5.brush directly); ink wash with a sumi-e kit; pixel art on a cell grid |
 | **Canvas sampling** (a `transform` that reads `result.canvas`) | new marks take their colour by *sampling* the painted plate | as a helper inside a replay style (pointillism's `refScale` does this) | never on its own as a filter |
 
@@ -54,7 +54,8 @@ A style that only blurs, posterises or adds noise to the watercolour output is a
    - `op.type`: `shape` (polygon points, with `op.rect` for rectangles), `circle`, `arc`, `path` (lines, splines, strokes), `flow` (flow-field lines).
    - Each op carries the active fill, wash, hatch and stroke state, with transforms already applied, in 0..W × 0..H coordinates. `op.i` is its index.
    - `log.background` is the plate ground.
-   - Map each kind of op to your mark: fills to tiles, gouges or halftone; hatches to parallel cuts; strokes to your line language. `engine/src/pointillism.js` is the complete worked example; copy its helpers (`parseColor`, `bbox`, `inside`, `rasterMask`, `family`).
+   - Map each kind of op to your mark: fills to tiles, gouges or halftone; hatches to parallel cuts; strokes to your line language. The shortest worked examples are `engine/src/materials/*.js` (built on `materials/common.js`: `opGeometry`, `runPainter` for draw-on and boil, paper-tooth and grain fields); `engine/src/pointillism.js` is the most elaborate one.
+   - **Sizes:** calibrate marks in pixels on a 1920-wide plate and multiply by `u = W / 1920`, so the same material works on the 600² default and on 1080p.
    - **Randomness:** use `makeRng(seed, 1 + op.i)` per op (`engine/src/rng.js`), never `p.random`, so the watercolour underneath stays pixel-identical and changing one op can't reshuffle the rest.
 4. **Particles (optional):** if moving marks should look like your material, branch on `style` in `drawParticles` (`engine/src/particles.js`), as pointillism does with `particleMark`.
 5. **Calibrate on three plates before anything else:** one dark and dense (for example `01-cobalt-exuberance` or `01-reef-ignition`), one pale and sparse (`15-almost-nothing`), and one line diagram (`09-specimen-plate`). Run `npm run plates -- --only a,b,c` and look at full size and at about 96 px. Most styles break on dark grounds (coverage) or on fine line work (legibility).
@@ -67,9 +68,10 @@ Put the new drawing primitives in `engine/src/<name>-kit.js`, register `<name>: 
 
 ## 4. Style ideas and how they map onto recorded ops
 
+Charcoal, sketch, woodcut and cel are implemented (`engine/src/materials/`); read them as worked examples. They're small, share `common.js`, and show replay (all four), boil variants (cel) and draw-on snapshots (all). Remaining ideas:
+
 | Style | Fills | Lines / hatch | Notes |
 |---|---|---|---|
-| Woodcut / linocut | carved flat areas; gouge marks follow the shape's axis | bold cut lines; hatch becomes parallel gouges | 2–3 ink colours, paper texture, slight misregistration |
 | Risograph / screen print | halftone per colour plate, offset registration | solid ink lines | limited spot palette, overprint multiply |
 | Mosaic / tessera | tiles packed inside each shape, grout gaps | tile chains along lines | tile size per profile |
 | Ink wash (sumi-e) | graded single-hue washes, dry-brush edges | pressure-varied brush strokes | mostly monochrome, lots of empty paper (direct style) |

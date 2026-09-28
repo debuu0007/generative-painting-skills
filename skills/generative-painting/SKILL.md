@@ -1,6 +1,6 @@
 ---
 name: generative-painting
-description: Make hand-painted-looking generative paintings and short art films in code, in a chosen painting style — watercolour (translucent glazes, graphite and ink on paper, the "Beautiful Collisions" look), pointillism (Seurat-style divided-colour dots), or both mixed plate by plate — with hard-cut collision editing, deterministic particle motion, a soft code-generated score, and a self-contained runnable engine (p5 + p5.brush + Vite + Playwright + ffmpeg) that exports lossless plates, MP4s, a WAV and automated checks. Also covers 16:9 1080p films, fixed-anchor on-screen text and pixel characters, repainting an existing film in another style with provably identical geometry, and adding brand-new painting styles. Use it whenever someone wants a painted or illustrated video, reel, loop, montage, launch film, animated artwork or generative painting of any subject (flowers, ocean, birds, cities, a product…), mentions watercolour, pointillism, stippling, dots, Seurat, botanical illustration or "Beautiful Collisions", wants an artwork remade in a different painting style, or wants to invent a new generative art style — even if they never name a style.
+description: Make hand-painted-looking generative paintings and short art films in code, in a chosen painting style — watercolour (translucent glazes, graphite and ink on paper, the "Beautiful Collisions" look), pointillism (Seurat-style divided-colour dots), charcoal with red conté, graphite or pen-and-ink sketch, woodcut / linocut print, or 2D cel animation — or several mixed plate by plate, with hard-cut collision editing, deterministic particle motion, a soft code-generated score, and a self-contained runnable engine (p5 + p5.brush + Vite + Playwright + ffmpeg) that exports lossless plates, MP4s, a WAV and automated checks. Also covers 16:9 1080p films, fixed-anchor on-screen text and pixel characters, repainting an existing film in another style with provably identical geometry, and adding brand-new painting styles. Use it whenever someone wants a painted or illustrated video, reel, loop, montage, launch film, animated artwork or generative painting of any subject (flowers, ocean, birds, cities, a product…), mentions watercolour, pointillism, stippling, dots, Seurat, charcoal, sketching, pencil, ink, woodcut, linocut, printmaking, 2D animation, botanical illustration or "Beautiful Collisions", wants an artwork remade in a different painting style, or wants to invent a new generative art style — even if they never name a style.
 ---
 
 # Generative painting
@@ -15,7 +15,11 @@ All paths are relative to this skill's folder.
 |---|---|---|---|
 | `watercolour` | translucent glazes that bleed and mix like pigment; graphite and ink lines, hatching and speckle on varied paper; antique scientific illustration colliding with editorial design | botanical, archival, delicate or tactile subjects; pale papers, diagrams, grounds under text | `styles/watercolour/STYLE.md` |
 | `pointillism` | thousands of distinct divided-colour dabs; form, light and edges built from dot density and colour families | luminous, textural, "made of dots" work; forms that dissolve into points; repainting an existing film | `styles/pointillism/STYLE.md` |
-| **mixed** | watercolour body with pointillist punctuation, switched at cuts | montages about variety or discovery, launches, sentence-over-montage films | `references/choosing-and-mixing-styles.md` |
+| `charcoal` | directional charcoal strokes and smudge on toothy paper, eraser highlights, one red conté accent | weight, tension, grief, aftermath, figures; things drawn on stroke by stroke | `styles/charcoal/STYLE.md` |
+| `sketch` | graphite hatching and searching contours, or crisp pen and ink; red pencil accent | calm openings, notes, diagrams, cracks, counts; draw-on | `styles/sketch/STYLE.md` |
+| `woodcut` | relief print: standing ink, carved paper, gouged greys, a misregistered red block, wood grain | force, violence, declaration: lightning, a charge, a hammer, stairs | `styles/woodcut/STYLE.md` |
+| `cel` | 2D animation: flat paint, hard cel shadow, thick-thin ink line, line boil on twos | gauges, clocks, machines, impacts; anything with moving parts | `styles/cel/STYLE.md` |
+| **mixed** | any of the above chosen per plate, switched at cuts | montages about variety or change, emotional arcs, launches | `references/choosing-and-mixing-styles.md` |
 
 Look at each style's `examples/` before choosing. If the user doesn't name a style:
 - ask when the choice matters;
@@ -56,7 +60,7 @@ Run `scripts/new-film.sh --list` to see the installed styles. New styles plug in
    - Watercolour: palette and paper choices inside each scene.
    - Mixed: `PLATES[id].style` per plate.
    - See the style's `STYLE.md`.
-5. **Add motion (optional):** `dust`, `radial`, `school` or `jelly` particles (`references/editing.md` → Motion).
+5. **Add motion (optional):** `dust`, `radial`, `school` or `jelly` particles (`references/editing.md` → Motion). The replay materials also have motion of their own: **draw-on** (the drawing appears stroke by stroke) and **boil** (the hand-drawn 2D line). See `references/motion-in-the-medium.md`.
 6. **Sound:** the soft score is the default, about −22 LUFS (`references/sound.md`). Each shot declares a `sound` character.
 7. **Export and verify:**
    - Run `npm run export`. It refuses to finish if any check fails.
@@ -80,7 +84,7 @@ Run `scripts/new-film.sh --list` to see the installed styles. New styles plug in
 
 | Path | Contents |
 |---|---|
-| `engine/` | the runnable project copied into every film: `src/` (capture, pointillism, kit, sea, ocean, particles, renderer, scores), `scripts/export.mjs`, `tools/` (cut audit, ΔE, playback check) |
+| `engine/` | the runnable project copied into every film: `src/` (capture, pointillism, `materials/` charcoal · sketch · woodcut · cel, kit, sea, ocean, particles, renderer, scores), `scripts/export.mjs`, `tools/` (cut audit, ΔE, playback check) |
 | `styles/<style>/STYLE.md` | how the style looks, how its material works, how it mixes, its hard rules |
 | `styles/<style>/demo/` | the style's demo `film.js` and scenes (used by `new-film.sh`) |
 | `styles/<style>/scene-library/` | finished paintings to copy and adapt |
@@ -89,6 +93,7 @@ Run `scripts/new-film.sh --list` to see the installed styles. New styles plug in
 | `styles/watercolour/style-dna.md`, `archetypes.md` | palette families and composition archetypes |
 | `styles/pointillism/material.md`, `translating.md` | material parameters and calibration; repainting a film |
 | `references/choosing-and-mixing-styles.md` | which style for which brief; when a cut changes material |
+| `references/motion-in-the-medium.md` | draw-on (with `drawOnTail`) and line boil |
 | `references/experimenting.md` | invariants versus style laws versus defaults; the dials worth changing first |
 | `references/editing.md` | rhythm, cut rule, archetypes, motion |
 | `references/drawing-kit.md` | the drawing kit, p5.brush behaviour, determinism rules |

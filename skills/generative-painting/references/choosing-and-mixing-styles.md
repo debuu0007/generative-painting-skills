@@ -15,6 +15,23 @@ Read this when the brief doesn't name a style, or when one film should use more 
 | **Encoding** | robust | 4:2:0 video halves colour resolution and blends neighbouring complementary dots. Enlarge dots for big frames (`dotScale`) and judge the encode in YUV. |
 | **Cost** | seconds per plate at 600² | ~5–20 s per plate at 600², 45–70 s at 1920×864 |
 
+### The replay styles
+
+| | Charcoal | Sketch | Woodcut | 2D cel |
+|---|---|---|---|---|
+| **Reads as** | charcoal + smudge on toothy paper, red conté | graphite hatching / pen and ink | relief print, black + red | flat animation paint, ink line |
+| **Strong at** | weight, tension, aftermath, figures | calm, notes, cracks, counts | force, impact, declaration | mechanisms, impacts, moving parts |
+| **Its own motion** | draw-on | draw-on | (none; hard stills) | boil + overlays on twos |
+| **Colour** | value + one red | value + one red | black + red | full flat colour |
+
+In the six-material anger film ([`mixed-film-example-six-materials.jpg`](mixed-film-example-six-materials.jpg)), the material follows the feeling:
+- **Control:** sketch, ink, pale watercolour, a 2D pressure gauge.
+- **Burning:** woodcut, a charcoal scribble, pointillist fire, 2D shattering glass, a watercolour flood.
+- **Burnout:** charcoal ash and one pointillist ember.
+- **Forging:** gathering sparks, a charcoal mountain drawn on with its red path, a 2D hammer, a woodcut pen nib.
+
+When there are more than two materials, give each one a *job* (the diagram of the feeling, the aftermath, the hit), rather than rotating them.
+
 ## 2. One style or several?
 
 **Default: one style for the whole film.** The collision already comes from the six cut axes (ground value, palette, density, scale, mark organisation, composition). One material keeps the film reading as the work of one artist.

@@ -11,7 +11,8 @@ An agent skill (for Claude Code, Codex, Cursor, and any agent that reads `SKILL.
 - **`watercolour`**: translucent glazes that bleed and mix like pigment, graphite and ink lines, hatching and speckle on varied paper. Antique scientific illustration collides with editorial design, cut into a rhythmic montage.
 - **`pointillism`**: pictures built from thousands of distinct divided-colour dabs. It can also **repaint an existing watercolour film as pointillism with provably identical geometry**: the source painting is re-created through a recording proxy and must match the original pixel for pixel before any dot is placed.
 
-- **mixed**: watercolour and pointillism in one film, chosen per plate and switched only at cuts (`references/choosing-and-mixing-styles.md`).
+- **`charcoal`**, **`sketch`** (graphite or ink), **`woodcut`** and **`cel`** (2D animation): replay materials that repaint the same recorded drawing, with draw-on and line boil (`references/motion-in-the-medium.md`).
+- **mixed**: any of these in one film, chosen per plate and switched only at cuts (`references/choosing-and-mixing-styles.md`).
 
 More styles plug in through one material hook (`references/adding-a-style.md`, starting from `styles/_template/`). Films can also be 16:9 at a genuine 1080p, with fixed-anchor on-screen text and pixel characters (`references/widescreen-and-titles.md`). What's a law and what's merely the default pattern is in `references/experimenting.md`.
 

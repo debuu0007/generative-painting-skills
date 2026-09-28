@@ -12,19 +12,23 @@ Works with **Claude Code, OpenAI Codex, Cursor** and any agent that reads `SKILL
 
 ## What's inside
 
-One skill, **`generative-painting`**, with a pluggable set of painting styles:
+One skill, **`generative-painting`**, with a pluggable set of **six** painting styles:
 
 | Style | What it looks like | Example film |
 |---|---|---|
 | **Watercolour** | translucent glazes that bleed and mix like pigment; graphite and ink, hatching, speckle and paper; antique scientific illustration colliding with editorial design | [contact sheet](skills/generative-painting/styles/watercolour/examples/beautiful-collisions-contact.jpg) · [ocean version](skills/generative-painting/styles/watercolour/examples/tidal-collisions-contact.jpg) |
 | **Pointillism** | pictures built from thousands of distinct divided-colour dabs, in the tradition of Seurat and Signac | [contact sheet](skills/generative-painting/styles/pointillism/examples/ocean-of-points-contact.jpg) · [same film, both styles](skills/generative-painting/styles/pointillism/examples/translation-watercolour-vs-pointillist.jpg) |
-| **Mixed** | watercolour body with pointillist punctuation, switched only at cuts | [16:9 montage with on-screen text](skills/generative-painting/references/mixed-film-example.jpg) |
-| **Your style** | woodcut, risograph, mosaic, ink wash, cross-stitch, pixel art… | [how to add one](#create-a-new-style) |
+| **Charcoal** | directional charcoal and smudge on toothy paper, eraser highlights, one red conté accent; draws itself on stroke by stroke | [demo](skills/generative-painting/styles/charcoal/examples/charcoal-demo-contact.jpg) |
+| **Sketch** | graphite hatching and searching contours, or crisp pen and ink | [demo](skills/generative-painting/styles/sketch/examples/sketch-demo-contact.jpg) |
+| **Woodcut** | relief print: ink, carved paper, gouged greys, a misregistered red block | [demo](skills/generative-painting/styles/woodcut/examples/woodcut-demo-contact.jpg) |
+| **2D cel** | flat animation paint, hard cel shadow, thick-thin ink line, line boil on twos | [demo](skills/generative-painting/styles/cel/examples/cel-demo-contact.jpg) |
+| **Mixed** | any of these, chosen per plate and switched at cuts | [six materials, one film about anger](skills/generative-painting/references/mixed-film-example-six-materials.jpg) · [16:9 montage with text](skills/generative-painting/references/mixed-film-example.jpg) |
+| **Your style** | risograph, mosaic, ink wash, cross-stitch, pixel art… | [how to add one](#create-a-new-style) |
 
 It also ships:
 - a runnable engine (p5.js + p5.brush + Vite + Playwright + ffmpeg);
 - 38 finished paintings to start from;
-- particle motion;
+- particle motion, plus motion that belongs to each medium: **draw-on** (drawings appear stroke by stroke) and **line boil** (hand-drawn 2D);
 - a quiet generative score;
 - an export pipeline that **proves** its output (bit-identical holds, deterministic seeking, encode fidelity).
 
@@ -87,7 +91,11 @@ npm run dev                    # live preview at http://localhost:5173
 |---|---|
 | botanical, archival, delicate, a notebook, antique science, quiet | **watercolour** |
 | luminous, textured, glowing, crowds, reefs, stars, "made of dots" | **pointillism** |
-| about variety or discovery; a launch; a montage with a sentence over it | **mixed** |
+| weight, tension, grief, aftermath, figures | **charcoal** |
+| calm, notes, diagrams, a crack spreading, a count growing | **sketch** |
+| force, violence, declaration | **woodcut** |
+| mechanisms, clocks, impacts, moving parts | **2D cel** |
+| an emotional arc, variety or discovery; a launch; a montage with a sentence over it | **mixed** |
 
 **When a mixed film should cut to pointillism:**
 - Treat pointillism as *punctuation*: about one plate in four, never more than two in a row, placed at the energy peaks.
@@ -176,9 +184,10 @@ skills/generative-painting/
   engine/                          runnable project template (src/, scripts/export.mjs, tools/)
   styles/watercolour/              STYLE.md, style DNA, archetypes, demo, 19-painting library, examples
   styles/pointillism/              STYLE.md, material calibration, translation guide, demo, 19-painting library, examples
+  styles/charcoal/, sketch/, woodcut/, cel/   STYLE.md, demo, examples (replay materials in engine/src/materials/)
   styles/_template/                start here for a new style
-  references/                      choosing & mixing · experimenting · editing · drawing kit ·
-                                   widescreen & titles · sound · verifying · adding a style
+  references/                      choosing & mixing · motion in the medium · experimenting · editing ·
+                                   drawing kit · widescreen & titles · sound · verifying · adding a style
   scripts/new-film.sh              scaffold a film in any installed style
 docs/banner.jpg
 ```

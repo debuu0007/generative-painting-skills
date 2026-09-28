@@ -2,7 +2,8 @@
  * (scaleBrushes, fields, fill/hatch state) never leaks between paintings.
  *
  * The painting material is PLATES[id].style if the plate sets one, else the film's STYLE (film.js),
- * so one film can mix materials plate by plate:
+ * so one film can mix materials plate by plate. Replay materials (pointillism, charcoal, sketch,
+ * woodcut, cel) all repaint the same recorded drawing:
  *   watercolour  the scene paints directly with p5.brush (glazes, washes, graphite, ink) and that
  *                painting is the plate.
  *   pointillism  the scene paints through a recording proxy (capture.js) that forwards every call
@@ -14,6 +15,11 @@ import { plates } from './scenes/index.js';
 import { PLATES, STYLE } from './film.js';
 import { createRecorder } from './capture.js';
 import { paintPointillist } from './pointillism.js';
+import { paintCharcoal } from './materials/charcoal.js';
+import { paintSketch } from './materials/sketch.js';
+import { paintWoodcut } from './materials/woodcut.js';
+import { paintCel } from './materials/cel.js';
+import { runPainter } from './materials/common.js';
 
 const q = new URLSearchParams(window.location.search);
 const id = q.get('scene');
@@ -52,7 +58,22 @@ const MATERIALS = {
       return { ...result, canvas, width: canvas.width, height: canvas.height, original: result.canvas, material: { ...stats, ops: log.ops.length, brushCalls: log.calls, ms: Math.round(performance.now() - t0), profile: spec.material?.profile || 'dense' } };
     },
   },
+  charcoal: { record: true, transform: (r, log) => replay(paintCharcoal, r, log) },
+  sketch: { record: true, transform: (r, log) => replay(paintSketch, r, log) },
+  woodcut: { record: true, transform: (r, log) => replay(paintWoodcut, r, log) },
+  cel: { record: true, transform: (r, log) => replay(paintCel, r, log) },
 };
+
+/** Replay materials (charcoal, sketch, woodcut, cel): paint the recorded ops with the material's own
+ * marks. PLATES[id].drawOn = K adds K cumulative snapshots (the drawing appearing stroke by stroke;
+ * drawOnTail = [nOps, k] gives the last ops their own k snapshots); PLATES[id].boil = V adds V
+ * jittered variants (2D line boil). Both are returned as `frames` next to the finished plate. */
+function replay(paintX, result, log) {
+  const t0 = performance.now();
+  const { make } = paintX(log, { W: result.logicalWidth, H: result.logicalHeight, density, seed: (spec.seed || 1) * 7919 + 31, material: spec.material || {} });
+  const out = runPainter(make, log.ops, { drawOn: spec.drawOn || 0, boil: spec.boil || 0, drawOnTail: spec.drawOnTail || null });
+  return { ...result, canvas: out.canvas, frames: out.frames || null, width: out.canvas.width, height: out.canvas.height, original: result.canvas, material: { ...(out.stats || {}), ops: log.ops.length, style: spec.style || STYLE, ms: Math.round(performance.now() - t0) } };
+}
 const style = spec.style || STYLE;
 const material = MATERIALS[style];
 if (!material) throw new Error(`Unknown style '${style}' for plate ${id} (PLATES[id].style or STYLE in film.js): expected one of ${Object.keys(MATERIALS).join(', ')}`);

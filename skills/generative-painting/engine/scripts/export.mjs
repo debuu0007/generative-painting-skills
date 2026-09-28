@@ -88,6 +88,9 @@ async function main(browser) {
   const t0 = Date.now();
   const only = opt('only');
   if (only && !flag('plates-only')) throw new Error('--only works with plates mode (npm run plates -- --only a,b)');
+  // No HMR client during capture: under heavy load its WebSocket can drop, and on reconnect it
+  // reloads the page and destroys the prepared plates. Serve an empty module instead.
+  await page.route('**/@vite/client', (r) => r.fulfill({ status: 200, contentType: 'application/javascript', body: 'export {};' }));
   await page.goto(`http://127.0.0.1:${port}/?export=1${only ? `&only=${encodeURIComponent(only)}` : ''}`, { waitUntil: 'domcontentloaded', timeout: 0 });
   const info = await page.evaluate(() => window.__frames.ready);
   console.log(`${ID}: ${info.plates.length} plates painted in ${Date.now() - t0} ms`);
@@ -128,10 +131,16 @@ async function main(browser) {
   }
 
   // Checks: static holds never wobble, motion shots move, every cut changes the image, repeats match.
-  const checks = { staticHolds: [], motion: [], cuts: [], repeats: [], determinism: null };
+  const checks = { staticHolds: [], motion: [], drawOn: [], cuts: [], repeats: [], determinism: null };
   for (const s of SHOTS) {
     const set = new Set(hashes.slice(s.start, s.end));
-    if (s.motion) checks.motion.push({ shot: s.shot, distinctFrames: set.size, of: s.frames, ok: set.size > 1 });
+    if (s.drawOn) {
+      // K drawings on twos, then the finished drawing holds exactly
+      const K = PLATES[s.plate].drawOn; const end = Math.min(s.end, s.start + 2 * K);
+      const onTwos = hashes.slice(s.start, end).every((h, i) => i % 2 === 0 || h === hashes[s.start + i - 1]);
+      const drawn = new Set(hashes.slice(s.start, end)).size; const hold = new Set(hashes.slice(end, s.end)).size;
+      checks.drawOn.push({ shot: s.shot, drawings: drawn, expected: Math.min(K, Math.ceil(s.frames / 2)), onTwos, holdDistinct: hold, ok: onTwos && drawn === Math.min(K, Math.ceil(s.frames / 2)) && hold <= 1 });
+    } else if (s.motion || s.boil) checks.motion.push({ shot: s.shot, kind: [s.motion, s.boil && 'boil'].filter(Boolean).join(' + '), distinctFrames: set.size, of: s.frames, ok: set.size > 1 });
     else checks.staticHolds.push({ shot: s.shot, ok: set.size === 1 });
     if (s.start > 0) checks.cuts.push({ at: s.start, ok: hashes[s.start] !== hashes[s.start - 1] });
     if (s.repeatOf) {
@@ -139,7 +148,7 @@ async function main(browser) {
       checks.repeats.push({ shot: s.shot, of: s.repeatOf, ok: hashes[s.start] === hashes[src.start] });
     }
   }
-  const probeFrames = [TOTAL_FRAMES - 1, 0, Math.floor(TOTAL_FRAMES / 2), ...SHOTS.filter((s) => s.motion).map((s) => s.start + Math.floor(s.frames / 3))];
+  const probeFrames = [TOTAL_FRAMES - 1, 0, Math.floor(TOTAL_FRAMES / 2), ...SHOTS.filter((s) => s.motion || s.drawOn || s.boil).map((s) => s.start + Math.floor(s.frames / 3))];
   const reseek = await page.evaluate((fs) => fs.map((f) => { window.__frames.seekFrame(f); return window.__frames.canvas.toDataURL('image/png'); }), probeFrames);
   checks.determinism = { outOfOrderSeeks: probeFrames.length, ok: reseek.every((d, i) => sha(png(d)) === hashes[probeFrames[i]]) };
   const failed = Object.entries(checks).flatMap(([k, v]) => (Array.isArray(v) ? v : [v]).filter((x) => !x.ok).map((x) => `${k}: ${JSON.stringify(x)}`));
@@ -228,7 +237,7 @@ async function main(browser) {
 
 let vite; let browser;
 try {
-  vite = await createServer({ root, logLevel: 'warn', server: { host: '127.0.0.1', port, strictPort: true } });
+  vite = await createServer({ root, logLevel: 'warn', server: { host: '127.0.0.1', port, strictPort: true, hmr: false, watch: null } });
   await vite.listen();
   browser = await chromium.launch();
   await main(browser);

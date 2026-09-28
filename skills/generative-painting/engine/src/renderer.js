@@ -49,7 +49,8 @@ function paintPlate(id, spec, { host, timeoutMs }) {
           original.height = result.original.height;
           original.getContext('2d').drawImage(result.original, 0, 0);
         }
-        finish(resolve, { canvas: copy, original, meta: { plate: id, seed: spec.seed, density: result.density, width: result.width, height: result.height, material: result.material || null, ms: Math.round(performance.now() - started) } });
+        const frames = result.frames ? result.frames.map((c) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height; k.getContext('2d').drawImage(c, 0, 0); return k; }) : null;
+        finish(resolve, { canvas: copy, original, frames, meta: { plate: id, seed: spec.seed, density: result.density, width: result.width, height: result.height, material: result.material || null, ms: Math.round(performance.now() - started) } });
       }, (error) => finish(reject, new Error(`Plate ${id} failed: ${error.message}`)));
     }, 15);
     frame.src = `/plate.html?scene=${encodeURIComponent(id)}&seed=${spec.seed}&density=${spec.density}`;
@@ -65,6 +66,7 @@ export function createRenderer(canvas, { host = document.body, timeoutMs = 18000
   const fitted = new Map();
   const particles = new Map();
   const originals = new Map();
+  const extra = new Map(); // id -> fitted draw-on snapshots / boil variants
   const meta = [];
   let prepared = false;
 
@@ -73,7 +75,10 @@ export function createRenderer(canvas, { host = document.body, timeoutMs = 18000
     for (let i = 0; i < ids.length; i++) {
       const id = ids[i];
       onProgress?.({ index: i, total: ids.length, plate: id, phase: 'painting' });
-      const { canvas: plate, original, meta: m } = await paintPlate(id, PLATES[id], { host, timeoutMs });
+      const { canvas: plate, original, frames, meta: m } = await paintPlate(id, PLATES[id], { host, timeoutMs });
+      const want = PLATES[id].drawOn || PLATES[id].boil || 0;
+      if (want && (!frames || frames.length !== want)) throw new Error(`Plate ${id}: expected ${want} draw-on/boil frames, got ${frames ? frames.length : 0}`);
+      if (frames) extra.set(id, frames.map((c) => { if (c.width === SIZE) return c; const k = document.createElement('canvas'); k.width = SIZE; k.height = SIZE; const g = k.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(c, 0, 0, SIZE, SIZE); return k; }));
       if (original) { originals.set(id, original); m.originalHash = await sha256(original); }
       if (m.width !== SIZE * PLATES[id].density) throw new Error(`Plate ${id} is ${m.width}px, expected ${SIZE * PLATES[id].density}px`);
       full.set(id, plate);
@@ -111,6 +116,12 @@ export function createRenderer(canvas, { host = document.body, timeoutMs = 18000
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(src, shot.crop.x * k, shot.crop.y * k, shot.crop.w * k, shot.crop.h * k, 0, 0, SIZE, SIZE);
+    } else if (shot.drawOn) {
+      // draw-on: cumulative snapshots on twos, then the finished drawing holds
+      const fr = extra.get(shot.plate); ctx.drawImage(fr[Math.min(fr.length - 1, Math.floor(local / 2))], 0, 0);
+    } else if (shot.boil) {
+      // line boil: jittered variants cycled on twos
+      const fr = extra.get(shot.plate); ctx.drawImage(fr[Math.floor(f / 2) % fr.length], 0, 0);
     } else {
       ctx.drawImage(fitted.get(shot.plate), 0, 0);
     }
